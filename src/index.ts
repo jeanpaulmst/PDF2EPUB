@@ -8,6 +8,7 @@ app.get("/", (req: Request, res: Response) => {
   res.send("Hola mundo con Express y TypeScript 🚀");
 });
 
+//Recibe archivo PDF y devuelve el JSON con markdown
 app.post("/process-pdf", async (req: Request, res: Response) => {
 
     try {

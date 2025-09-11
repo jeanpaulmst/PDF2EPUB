@@ -13,7 +13,7 @@ const getJsonMd = async () => {
     //Subir pdf al clod de mistral
 
     //Para testear
-    const uploaded_file = fs.readFileSync(pdfPath ? pdfPath : "");
+    const uploaded_file = fs.readFileSync(pdfPath);
 
     const uploaded_pdf = await client.files.upload({
         file: {
@@ -33,8 +33,8 @@ const getJsonMd = async () => {
         document: {
             type: "document_url",
             documentUrl: signedUrl.url,
-            
-        }
+        },
+        includeImageBase64: true
     });
 
     /*
@@ -53,6 +53,12 @@ const getJsonMd = async () => {
     return finalMarkdown
     */
     return ocrResponse
+}
+
+const concatMarkdowns = (ocrResponse) => {
+    let markdown : string = ""
+
+    return markdown
 }
 
 export default getJsonMd
