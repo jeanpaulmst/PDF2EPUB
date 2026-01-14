@@ -3,7 +3,7 @@
 echo Iniciando proceso de conversion a EPUB...
 echo.
 
-pandoc dist\md\full_document.md -o dist\libro.epub --mathml --resource-path=dist\images --metadata title="Tu Titulo" --metadata author="Autor"
+pandoc dist\md\full_document.md -o dist\libro.epub --webtex --resource-path=dist\images --metadata title="Tu Titulo" --metadata author="Autor"
 
 if %errorlevel% equ 0 (
     echo.
