@@ -10,8 +10,6 @@ const getJsonMd = async () => {
     const client = new Mistral({apiKey: apiKey});
     const pdfPath = process.env.TEST_DOC_PATH;
 
-    //Subir pdf al clod de mistral
-
     //Para testear
     const uploaded_file = fs.readFileSync(pdfPath);
 
@@ -53,12 +51,6 @@ const getJsonMd = async () => {
     return finalMarkdown
     */
     return ocrResponse
-}
-
-const concatMarkdowns = (ocrResponse) => {
-    let markdown : string = ""
-
-    return markdown
 }
 
 export default getJsonMd

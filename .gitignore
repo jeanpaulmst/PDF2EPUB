@@ -3,4 +3,5 @@ node_modules
 dist
 pdfDocs
 outputMDFiles
+outputEPUBFiles
 imagesIds.txt
