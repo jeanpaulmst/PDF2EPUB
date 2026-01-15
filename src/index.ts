@@ -1,5 +1,5 @@
 import express, { Request, Response } from "express";
-import getJsonMd from "./getJsonMd";
+import processMistralOCR from "./processMistralOCR";
 
 const app = express();
 const PORT = 3000;
@@ -12,7 +12,7 @@ app.get("/", (req: Request, res: Response) => {
 app.post("/process-pdf", async (req: Request, res: Response) => {
 
     try {
-        const ocrResponse = await getJsonMd();
+        const ocrResponse = await processMistralOCR();
         res.json(ocrResponse);
     } catch (error) {
         console.error("Error processing PDF:", error);
