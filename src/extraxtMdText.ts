@@ -2,37 +2,11 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
-import example2 from '../example2.json';
+import { OCRResponse } from './types';
 
-interface Image {
-    id: string;
-    imageBase64: string;
-    topLeftX: number;
-    topLeftY: number;
-    bottomRightX: number;
-    bottomRightY: number;
-    imageAnnotation: any;
-}
-
-interface Page {
-    index: number;
-    markdown: string;
-    images: Image[];
-    dimensions: {
-        dpi: number;
-        height: number;
-        width: number;
-    };
-}
-
-interface JsonData {
-    pages: Page[];
-}
-
-export function extractMdText(): void {
+export function extractMdText(data: OCRResponse): void {
     console.log("corriendo extractMdText...");
-    const data: JsonData = example2 as JsonData;
-    const mdDir = path.join(process.cwd(), 'md');
+    const mdDir = path.join(process.cwd(), 'output', 'md');
 
     if (!fs.existsSync(mdDir)) {
         fs.mkdirSync(mdDir, { recursive: true });
@@ -40,7 +14,7 @@ export function extractMdText(): void {
 
     let fullMarkdown = '';
 
-    data.pages.forEach((page: Page, index: number) => {
+    data.pages.forEach((page, index) => {
         fullMarkdown += page.markdown;
 
         if (index < data.pages.length - 1) {
@@ -54,5 +28,3 @@ export function extractMdText(): void {
     console.log(`\nDocumento markdown completo guardado en: ${outputPath}`);
     console.log(`Total de páginas procesadas: ${data.pages.length}`);
 }
-
-extractMdText();

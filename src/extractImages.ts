@@ -2,32 +2,7 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
-import example2 from '../example2.json';
-
-interface Image {
-    id: string;
-    imageBase64: string;
-    topLeftX: number;
-    topLeftY: number;
-    bottomRightX: number;
-    bottomRightY: number;
-    imageAnnotation: any;
-}
-
-interface Page {
-    index: number;
-    markdown: string;
-    images: Image[];
-    dimensions: {
-        dpi: number;
-        height: number;
-        width: number;
-    };
-}
-
-interface JsonData {
-    pages: Page[];
-}
+import { OCRResponse } from './types';
 
 function base64ToJPG(base64Data: string, outputPath: string): void {
     const base64String = base64Data.replace(/^data:image\/\w+;base64,/, '');
@@ -35,10 +10,9 @@ function base64ToJPG(base64Data: string, outputPath: string): void {
     fs.writeFileSync(outputPath, buffer);
 }
 
-export function extractImages(): void {
+export function extractImages(data: OCRResponse): void {
     console.log("corriendo extractImages...");
-    const data: JsonData = example2 as JsonData;
-    const imagesDir = path.join(process.cwd(), 'images');
+    const imagesDir = path.join(process.cwd(), 'output', 'images');
 
     if (!fs.existsSync(imagesDir)) {
         fs.mkdirSync(imagesDir, { recursive: true });
@@ -46,8 +20,8 @@ export function extractImages(): void {
 
     let totalImages = 0;
 
-    data.pages.forEach((page: Page) => {
-        page.images.forEach((image: Image) => {
+    data.pages.forEach((page) => {
+        page.images.forEach((image) => {
             const imagePath = path.join(imagesDir, image.id);
             base64ToJPG(image.imageBase64, imagePath);
             totalImages++;
@@ -58,4 +32,3 @@ export function extractImages(): void {
     console.log(`\nTotal de imágenes extraídas: ${totalImages}`);
 }
 
-extractImages();

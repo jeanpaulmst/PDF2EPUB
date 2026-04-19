@@ -1,15 +1,20 @@
 import express, { Request, Response } from "express";
-import fs from "fs";
+import multer from "multer";
 import dotenv from "dotenv";
 import { createOCRAdapter, OCRProvider } from "./adapters";
 import { OCRService } from "./services";
+import { extractImages } from "./extractImages";
+import { extractMdText } from "./extraxtMdText";
+import { convertToEpub } from "./convertToEpub";
+import { OCRResponse } from "./types";
 
 dotenv.config();
 
 const app = express();
 const PORT = 3000;
 
-// Crear servicio OCR con el proveedor configurado
+const upload = multer({ storage: multer.memoryStorage() });
+
 const provider = (process.env.OCR_PROVIDER || 'mistral') as OCRProvider;
 const ocrAdapter = createOCRAdapter(provider);
 const ocrService = new OCRService(ocrAdapter);
@@ -18,7 +23,6 @@ app.get("/", (req: Request, res: Response) => {
   res.send(`PDF2EPUB API - Usando proveedor: ${ocrService.providerName}`);
 });
 
-// Endpoint para ver las capacidades del proveedor actual
 app.get("/capabilities", (req: Request, res: Response) => {
   res.json({
     provider: ocrService.providerName,
@@ -26,21 +30,22 @@ app.get("/capabilities", (req: Request, res: Response) => {
   });
 });
 
-//Recibe archivo PDF y devuelve el JSON con markdown
-app.post("/process-pdf", async (req: Request, res: Response) => {
+app.post("/process-pdf", upload.single('pdf'), async (req: Request, res: Response) => {
     try {
-        // Por ahora usa TEST_DOC_PATH del .env (como el original)
-        const pdfPath = process.env.TEST_DOC_PATH;
-        if (!pdfPath) {
-            res.status(400).json({ error: "TEST_DOC_PATH not configured" });
+        if (!req.file) {
+            res.status(400).json({ error: "Se requiere un archivo PDF en el campo 'pdf'" });
             return;
         }
 
-        const pdfBuffer = fs.readFileSync(pdfPath);
-        const fileName = pdfPath.split(/[/\\]/).pop() || "document.pdf";
+        const title = (req.body.title as string) || "documento";
+        const pdfBuffer = req.file.buffer;
+        const fileName = req.file.originalname || "document.pdf";
 
-        const ocrResponse = await ocrService.processDocument(pdfBuffer, fileName);
-        res.json(ocrResponse);
+        const ocrResponse = await ocrService.processDocument(pdfBuffer, fileName) as OCRResponse;
+        extractImages(ocrResponse);
+        extractMdText(ocrResponse);
+        const epubPath = convertToEpub(title);
+        res.download(epubPath, `${title}.epub`);
     } catch (error) {
         console.error("Error processing PDF:", error);
         res.status(500).json({ error: "Error processing PDF" });
